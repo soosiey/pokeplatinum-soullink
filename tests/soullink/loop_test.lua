@@ -30,6 +30,7 @@ local env = setmetatable({
         assert(not arg[1], "Portable script attempted to load an external module: " .. path)
         if path:match("mailbox.lua$") then return M end
         if path:match("bizhawk.lua$") then return { connect = function() return io end } end
+        if path:match("network.lua$") then return dofile(path) end
         if path:match("soullink%-symbols.lua$") then return {} end
         error("Unexpected file: " .. path)
     end,

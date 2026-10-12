@@ -1,8 +1,9 @@
--- Stage 2: local PING/ack only. Load via Tools -> Lua Console -> Open Script.
+-- Stage 3: local PING/ack plus relay HELLO/KEEPALIVE. No gameplay synchronization yet.
 local source = debug.getinfo(1, "S").source:gsub("^@", "")
 local root = source:match("^(.*[\\/])") or "./"
 local mailbox = dofile(root .. "tools/soullink/mailbox.lua")
 local adapter = dofile(root .. "tools/soullink/bizhawk.lua")
+local network = dofile(root .. "tools/soullink/network.lua")
 local symbols = dofile(root .. ".build/rom/soullink-symbols.lua")
 local function log(message) console.log("[Soul Link] " .. message) end
 local io = adapter.connect(symbols, log)
@@ -20,6 +21,9 @@ while true do
     emu.frameadvance()
 end
 log("Mailbox initialized. Testing PING in both directions.")
+local config, configError = network.load_config(root .. "soullink-config.lua")
+if configError then log(configError) end
+local connection = network.connect(config, mailbox.version, comm, log)
 
 while true do
     io.validate_game()
@@ -60,5 +64,6 @@ while true do
         reported = true
     end
     frames = frames + 1
+    connection.update(frames)
     emu.frameadvance()
 end

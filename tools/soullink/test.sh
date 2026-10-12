@@ -19,5 +19,6 @@ if [[ -z "$lua_bin" ]]; then
 fi
 "$lua_bin" tests/soullink/mailbox_test.lua
 "$lua_bin" tests/soullink/adapter_test.lua
+"$lua_bin" tests/soullink/network_test.lua
 "$lua_bin" tests/soullink/loop_test.lua
 SOULLINK_LUA="$lua_bin" python3 -m unittest discover -s tests/soullink -p 'test_*.py'
