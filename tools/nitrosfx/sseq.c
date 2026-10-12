@@ -249,7 +249,7 @@ static void PackEvent(struct EventPackage *eventTracks, uint32_t time, uint32_t 
     eventTracks->count++;
 }
 
-static uint32_t Sseq_To_Midi_NULL(struct EventPackage *UNUSED, uint32_t UNUSED, uint32_t UNUSED, uint8_t UNUSED, uint8_t *UNUSED)
+static uint32_t Sseq_To_Midi_NULL(struct EventPackage *UNUSED eventPackage, uint32_t UNUSED time, uint32_t UNUSED address, uint8_t UNUSED command, uint8_t *UNUSED sseqPos)
 {
     FATAL_ERROR("Unknown SSEQ Event\n");
 
@@ -269,21 +269,21 @@ static uint32_t Sseq_To_Midi_Instrument(struct EventPackage *eventPackage, uint3
     return 1;
 }
 
-static uint32_t Sseq_To_Midi_Jump(struct EventPackage *UNUSED, uint32_t UNUSED, uint32_t UNUSED, uint8_t UNUSED, uint8_t *sseqPos)
+static uint32_t Sseq_To_Midi_Jump(struct EventPackage *UNUSED eventPackage, uint32_t UNUSED time, uint32_t UNUSED address, uint8_t UNUSED command, uint8_t *sseqPos)
 {
     if (sseqPos == NULL) FATAL_ERROR("error reading sseq\n");
 
     return 3;
 }
 
-static uint32_t Sseq_To_Midi_Call(struct EventPackage *UNUSED, uint32_t UNUSED, uint32_t UNUSED, uint8_t UNUSED, uint8_t *sseqPos)
+static uint32_t Sseq_To_Midi_Call(struct EventPackage *UNUSED eventPackage, uint32_t UNUSED time, uint32_t UNUSED address, uint8_t UNUSED command, uint8_t *sseqPos)
 {
     if (sseqPos == NULL) FATAL_ERROR("error reading sseq\n");
 
     return 3;
 }
 
-static uint32_t Sseq_To_Midi_Random(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED, uint8_t *sseqPos)
+static uint32_t Sseq_To_Midi_Random(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED command, uint8_t *sseqPos)
 {
     if (sseqPos == NULL) FATAL_ERROR("error reading sseq\n");
 
@@ -306,7 +306,7 @@ static uint32_t Sseq_To_Midi_Random(struct EventPackage *eventPackage, uint32_t 
     return commandLength - 1;
 }
 
-static uint32_t Sseq_To_Midi_Variable(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED, uint8_t *sseqPos)
+static uint32_t Sseq_To_Midi_Variable(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED command, uint8_t *sseqPos)
 {
     if (sseqPos == NULL) FATAL_ERROR("error reading sseq\n");
 
@@ -637,7 +637,7 @@ static uint32_t Sseq_To_Midi_Modulation_Delay(struct EventPackage *eventPackage,
     return 1;
 }
 
-static uint32_t Sseq_To_Midi_Tempo(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED, uint8_t *sseqPos)
+static uint32_t Sseq_To_Midi_Tempo(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED command, uint8_t *sseqPos)
 {
     if (sseqPos == NULL) FATAL_ERROR("error reading sseq\n");
 
@@ -685,7 +685,7 @@ static uint32_t Sseq_To_Midi_Loop_End(struct EventPackage *eventPackage, uint32_
     return 1;
 }
 
-static uint32_t Sseq_To_Midi_Return(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED, uint8_t *UNUSED)
+static uint32_t Sseq_To_Midi_Return(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED command, uint8_t *UNUSED sseqPos)
 {
     uint8_t *eventData = malloc(4);
     if (eventData == NULL) FATAL_ERROR("Error allocating eventData\n");
@@ -698,7 +698,7 @@ static uint32_t Sseq_To_Midi_Return(struct EventPackage *eventPackage, uint32_t 
     return 0;
 }
 
-static uint32_t Sseq_To_Midi_Track_End(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED, uint8_t *UNUSED)
+static uint32_t Sseq_To_Midi_Track_End(struct EventPackage *eventPackage, uint32_t time, uint32_t address, uint8_t UNUSED command, uint8_t *UNUSED sseqPos)
 {
     uint8_t *eventData = malloc(3);
     if (eventData == NULL) FATAL_ERROR("Error allocating eventData\n");
@@ -840,7 +840,7 @@ static uint32_t(*SSEQ_COMMAND_TO_MIDI[])(struct EventPackage *eventPackage, uint
     Sseq_To_Midi_Track_End, // 0xFF
 };
 
-static void Midi_Controller_To_Sseq_NULL(struct EventPackage *UNUSED, uint8_t UNUSED)
+static void Midi_Controller_To_Sseq_NULL(struct EventPackage *UNUSED eventPackage, uint8_t UNUSED value)
 {
     return;
 }
@@ -1065,7 +1065,7 @@ static void Midi_Controller_To_Sseq_Loop_End(struct EventPackage *eventPackage, 
     PackEvent(eventPackage, 0, 0, eventData, 2);
 }
 
-static void Midi_Controller_To_Sseq_Mono(struct EventPackage *eventPackage, uint8_t UNUSED)
+static void Midi_Controller_To_Sseq_Mono(struct EventPackage *eventPackage, uint8_t UNUSED value)
 {
     uint8_t *eventData = malloc(2);
     if (eventData == NULL) FATAL_ERROR("Error allocating eventData\n");
@@ -1074,7 +1074,7 @@ static void Midi_Controller_To_Sseq_Mono(struct EventPackage *eventPackage, uint
     PackEvent(eventPackage, 0, 0, eventData, 2);
 }
 
-static void Midi_Controller_To_Sseq_Poly(struct EventPackage *eventPackage, uint8_t UNUSED)
+static void Midi_Controller_To_Sseq_Poly(struct EventPackage *eventPackage, uint8_t UNUSED value)
 {
     uint8_t *eventData = malloc(2);
     if (eventData == NULL) FATAL_ERROR("Error allocating eventData\n");
@@ -1341,6 +1341,7 @@ uint8_t *MidiToSseq(uint8_t *midi, uint32_t midiSize, uint32_t *sseqSize)
                 switch (identifier >> 4)
                 {
                     case MIDI_EVENT_NOTE_OFF:
+                        ; // A label must precede a statement in C99.
                         struct Event *noteOff = NULL;
                         struct Event *prevNote = NULL;
                         for(struct Event *a = activeNotes->head; a != NULL; a = a->next)

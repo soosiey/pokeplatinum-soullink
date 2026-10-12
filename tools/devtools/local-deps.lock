@@ -1,0 +1,8 @@
+# SHA256 Ubuntu Focal amd64 package path (archive.ubuntu.com/ubuntu)
+b7898a7130a1f2f0ef85a43e5b81d977ceb3d9bf5af434eaac5d186b4d87b3f8 pool/main/b/bison/bison_3.5.1+dfsg-1_amd64.deb
+67e2b65dcfdcb6f50b2a78bbf41c9a7fe5f9659017fb33b81bfb824fbdd23111 pool/main/f/flex/flex_2.6.4-6.2_amd64.deb
+1ffa955ebb58829f3ab0debf7ad57b150887f6a44769edbaef68b8da9d95f306 pool/main/m/m4/m4_1.4.18-4_amd64.deb
+57924c8d7d329d689d5afe027aeff8c6b16bce1cdea1e5fd039672cf9e82e0b5 pool/universe/n/ninja-build/ninja-build_1.10.0-1build1_amd64.deb
+2e5668d981fe99027ae32edae8c6cbdaf35d0bd203d62c0f8725ed132cb8b4c1 pool/universe/p/patchelf/patchelf_0.10-2build1_amd64.deb
+4f6a832ccef0ea35f46ddefc3d8cb4c09ca10ff6ab876e27c427b6ae38e0418b pool/main/g/glibc/libc6-i386_2.31-0ubuntu9.18_amd64.deb
+5b762634bc0f375a7cbff81dfce3015664e48d2d69dbab803aab895dd63779ae pool/universe/l/lua5.3/lua5.3_5.3.3-1.1ubuntu2_amd64.deb

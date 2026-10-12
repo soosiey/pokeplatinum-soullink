@@ -538,6 +538,7 @@ void ConvertPathToSdat(int argc, char **argv)
                         PackInfo(infoPackages[i], swarInfo, sizeof(struct SwarInfo), name->valuestring, fName);
                         break;
                     case PLAYER:
+                        ; // A label must precede a statement in C99.
                         struct PlayerInfo *playerInfo = malloc(sizeof(struct PlayerInfo));
                         if (playerInfo == NULL) FATAL_ERROR("Failed to allocate memory for playerInfo\n");
                         playerInfo->maxSseq = cJSON_GetObjectItemCaseSensitive(jFile, "maxSequences")->valueint;
@@ -546,6 +547,7 @@ void ConvertPathToSdat(int argc, char **argv)
                         PackInfo(infoPackages[i], playerInfo, sizeof(struct PlayerInfo), name->valuestring, name->valuestring);
                         break;
                     case GROUP:
+                        ; // A label must precede a statement in C99.
                         struct GroupInfo *groupInfo = malloc(sizeof(struct GroupInfo));
                         if (groupInfo == NULL) FATAL_ERROR("Failed to allocate memory for groupInfo\n");
                         cJSON *subGroups = cJSON_GetObjectItemCaseSensitive(jFile, "subGroups");
@@ -576,6 +578,7 @@ void ConvertPathToSdat(int argc, char **argv)
                         PackInfo(infoPackages[i], groupInfo, 4 + sizeof(struct GroupEntry) * groupInfo->count, name->valuestring, name->valuestring);
                         break;
                     case STRMPLAYER: // TODO
+                        ; // A label must precede a statement in C99.
                         struct StreamPlayerInfo *streamPlayerInfo = malloc(sizeof(struct StreamPlayerInfo));
                         if (streamPlayerInfo == NULL) FATAL_ERROR("Failed to allocate memory for streamPlayerInfo\n");
                         streamPlayerInfo->numChannels = 0;
@@ -588,6 +591,7 @@ void ConvertPathToSdat(int argc, char **argv)
                         PackInfo(infoPackages[i], streamPlayerInfo, sizeof(struct StreamPlayerInfo), name->valuestring, name->valuestring);
                         break;
                     case STRM: // TODO
+                        ; // A label must precede a statement in C99.
                         struct StreamInfo *streamInfo = malloc(sizeof(struct StreamInfo));
                         if (streamInfo == NULL) FATAL_ERROR("Failed to allocate memory for streamInfo\n");
                         streamInfo->fileID = 0;
@@ -886,6 +890,7 @@ void ConvertSdatToPath(int argc, char **argv)
                 switch (i)
                 {
                     case SEQ:
+                        ; // A label must precede a statement in C99.
                         struct SseqInfo *sseqInfo = malloc(sizeof(struct SseqInfo));
                         if (sseqInfo == NULL) FATAL_ERROR("Failed to allocate memory for sseqInfo\n");
                         sseqInfo->fileID = ReadU32_LE(sdatFile + offset);
@@ -899,6 +904,7 @@ void ConvertSdatToPath(int argc, char **argv)
                         j->info = sseqInfo;
                         break;
                     case SEQARC:
+                        ; // A label must precede a statement in C99.
                         struct SsarInfo *ssarInfo = malloc(sizeof(struct SsarInfo));
                         if (ssarInfo == NULL) FATAL_ERROR("Failed to allocate memory for ssarInfo\n");
                         ssarInfo->fileID = ReadU32_LE(sdatFile + offset);
@@ -907,6 +913,7 @@ void ConvertSdatToPath(int argc, char **argv)
                         j->info = ssarInfo;
                         break;
                     case BANK:
+                        ; // A label must precede a statement in C99.
                         struct SbnkInfo *sbnkInfo = malloc(sizeof(struct SbnkInfo));
                         if (sbnkInfo == NULL) FATAL_ERROR("Failed to allocate memory for sbnkInfo\n");
                         sbnkInfo->fileID = ReadU32_LE(sdatFile + offset);
@@ -919,6 +926,7 @@ void ConvertSdatToPath(int argc, char **argv)
                         j->info = sbnkInfo;
                         break;
                     case WAVARC:
+                        ; // A label must precede a statement in C99.
                         struct SwarInfo *swarInfo = malloc(sizeof(struct SwarInfo));
                         if (swarInfo == NULL) FATAL_ERROR("Failed to allocate memory for swarInfo\n");
                         swarInfo->fileID = ReadU32_LE(sdatFile + offset);
@@ -927,6 +935,7 @@ void ConvertSdatToPath(int argc, char **argv)
                         j->info = swarInfo;
                         break;
                     case PLAYER:
+                        ; // A label must precede a statement in C99.
                         struct PlayerInfo *playerInfo = malloc(sizeof(struct PlayerInfo));
                         if (playerInfo == NULL) FATAL_ERROR("Failed to allocate memory for playerInfo\n");
                         playerInfo->maxSseq = ReadU16_LE(sdatFile + offset);
@@ -937,6 +946,7 @@ void ConvertSdatToPath(int argc, char **argv)
                         j->info = playerInfo;
                         break;
                     case GROUP:
+                        ; // A label must precede a statement in C99.
                         struct GroupInfo *groupInfo = malloc(sizeof(struct GroupInfo));
                         if (groupInfo == NULL) FATAL_ERROR("Failed to allocate memory for groupInfo\n");
                         groupInfo->count = ReadU32_LE(sdatFile + offset);
@@ -953,6 +963,7 @@ void ConvertSdatToPath(int argc, char **argv)
                         j->info = groupInfo;
                         break;
                     case STRMPLAYER: // TODO
+                        ; // A label must precede a statement in C99.
                         struct StreamPlayerInfo *streamPlayerInfo = malloc(sizeof(struct StreamPlayerInfo));
                         if (streamPlayerInfo == NULL) FATAL_ERROR("Failed to allocate memory for streamPlayerInfo\n");
                         streamPlayerInfo->numChannels = 0;
@@ -963,6 +974,7 @@ void ConvertSdatToPath(int argc, char **argv)
                         j->info = streamPlayerInfo;
                         break;
                     case STRM: // TODO
+                        ; // A label must precede a statement in C99.
                         struct StreamInfo *streamInfo = malloc(sizeof(struct StreamInfo));
                         if (streamInfo == NULL) FATAL_ERROR("Failed to allocate memory for streamInfo\n");
                         streamInfo->fileID = 0;
@@ -1082,6 +1094,7 @@ void ConvertSdatToPath(int argc, char **argv)
                 switch (i)
                 {
                     case SEQ:
+                        ; // A label must precede a statement in C99.
                         struct SseqInfo *sseqInfo = j->info;
                         cJSON_AddStringToObject(item, "fileName", fileNames[sseqInfo->fileID]);
                         cJSON_AddStringToObject(item, "bank", GetInfoName(infoPackages[BANK], sseqInfo->bankID));
@@ -1091,10 +1104,12 @@ void ConvertSdatToPath(int argc, char **argv)
                         cJSON_AddStringToObject(item, "player", GetInfoName(infoPackages[PLAYER], sseqInfo->playerID));
                         break;
                     case SEQARC:
+                        ; // A label must precede a statement in C99.
                         struct SsarInfo *ssarInfo = j->info;
                         cJSON_AddStringToObject(item, "fileName", fileNames[ssarInfo->fileID]);
                         break;
                     case BANK:
+                        ; // A label must precede a statement in C99.
                         struct SbnkInfo *sbnkInfo = j->info;
                         cJSON_AddStringToObject(item, "fileName", fileNames[sbnkInfo->fileID]);
                         char *swarNames[4] = {"", "", "", ""};
@@ -1122,16 +1137,19 @@ void ConvertSdatToPath(int argc, char **argv)
                         cJSON_AddItemToObject(item, "waves", swarArray);
                         break;
                     case WAVARC:
+                        ; // A label must precede a statement in C99.
                         struct SwarInfo *swarInfo = j->info;
                         cJSON_AddStringToObject(item, "fileName", fileNames[swarInfo->fileID]);
                         break;
                     case PLAYER:
+                        ; // A label must precede a statement in C99.
                         struct PlayerInfo *playerInfo = j->info;
                         cJSON_AddNumberToObject(item, "maxSequences", playerInfo->maxSseq);
                         cJSON_AddNumberToObject(item, "channels", playerInfo->channels); // TODO: separate bitflag?
                         cJSON_AddNumberToObject(item, "heapSize", playerInfo->heapSize);
                         break;
                     case GROUP:
+                        ; // A label must precede a statement in C99.
                         struct GroupInfo *groupInfo = j->info;
                         cJSON *groupArray = cJSON_AddArrayToObject(item, "subGroups");
                         for (int groupI = 0; groupI < groupInfo->count; groupI++)
@@ -1144,12 +1162,14 @@ void ConvertSdatToPath(int argc, char **argv)
                         }
                         break;
                     case STRMPLAYER: // TODO
+                        ; // A label must precede a statement in C99.
                         struct StreamPlayerInfo *streamPlayerInfo = j->info;
                         cJSON_AddNumberToObject(item, "numChannels", streamPlayerInfo->numChannels);
                         cJSON_AddNumberToObject(item, "leftChannel", streamPlayerInfo->left_channel);
                         cJSON_AddNumberToObject(item, "RightChannel", streamPlayerInfo->right_channel);
                         break;
                     case STRM: // TODO
+                        ; // A label must precede a statement in C99.
                         struct StreamInfo *streamInfo = j->info;
                         cJSON_AddStringToObject(item, "fileName", fileNames[streamInfo->fileID]);
                         cJSON_AddNumberToObject(item, "volume", streamInfo->volume);

@@ -336,6 +336,7 @@ uint8_t *WavToSwav(uint8_t *wav, uint32_t wavSize, uint32_t *swavSize, uint8_t e
                 if (numSamples % 2) *(uint16_t*)(audioOut + numSamples * 2) = 0;
                 break;
             case SWAV_IMA_ADPCM:
+                ; // A label must precede a statement in C99.
                 struct IMA_Prediction prediction;
                 prediction.value = 0;
                 prediction.index = InitialStepIndex(0, ReadU16_LE(audioPointer));

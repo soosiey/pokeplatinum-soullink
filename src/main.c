@@ -23,6 +23,7 @@
 #include "savedata.h"
 #include "screen_fade.h"
 #include "sound_system.h"
+#include "soul_link.h"
 #include "sys_task_manager.h"
 #include "system.h"
 #include "timer.h"
@@ -118,7 +119,10 @@ void NitroMain(void)
 
     gIgnoreCartridgeForWake = FALSE;
 
+    SoulLink_Init();
+
     while (TRUE) {
+        SoulLink_Update();
         CheckHeapCanary();
         HandleConsoleFold();
         ReadKeypadAndTouchpad();

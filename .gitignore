@@ -1,5 +1,11 @@
 # Build directory
 /build/
+/.build/
+
+# Local intermediate Soul Link build and stage instructions
+/docs/soullink-build.txt
+/docs/soullink-stage[0-9]*.txt
+/soullink-config.lua
 
 # Metroskrew artifacts
 /metroskrew-*.tar.xz
@@ -37,6 +43,22 @@ cmake-build-debug/
 *.4bpp
 *.lz
 *.gbapal
+
+# Built ROMs and generated Soul Link symbol manifests
+*.nds
+*.nef
+soullink-symbols.lua
+
+# Compiled Lua scripts
+*.luac
+luac.out
+
+# Local logs, temporary files, and editor backups
+*.log
+*.tmp
+*.swp
+*.swo
+*~
 
 # For asmdiff
 */baserom.*
@@ -105,6 +127,11 @@ sdk/
 !tools/asmdiff/asmdiff.sh
 
 __pycache__
+*.py[cod]
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
 .cache
 .venv/
 .python-version
