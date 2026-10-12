@@ -36,10 +36,14 @@ def package(build_dir, output):
     temporary_lua.write_text("-- Generated portable client; edit repository sources instead.\n" + script,
                              encoding="utf-8")
     temporary_lua.replace(lua)
+    bridge = output / "soullink_bridge.py"
+    temporary_bridge = bridge.with_suffix(".py.tmp")
+    shutil.copyfile(REPO / bridge.name, temporary_bridge)
+    temporary_bridge.replace(bridge)
     config = output / "soullink-config.lua"
     if not config.exists():
         shutil.copyfile(REPO / "soullink-config.example.lua", config)
-    print(f"Portable bundle: {output} (Stage 2 PING only; networking is not implemented yet)")
+    print(f"Portable bundle: {output} (relay included; Lua is still Stage 2 PING-only)")
 
 
 def main():

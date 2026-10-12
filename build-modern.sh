@@ -12,6 +12,7 @@ esac
 if [[ "$action" == clean ]]; then
     # Remove only generated bundle files, preserving player config and saves.
     rm -f -- .build/client/pokeplatinum.us.nds .build/client/soullink.lua
+    rm -f -- .build/client/soullink_bridge.py
     if [[ ! -f .build/rom/build.ninja ]]; then
         printf 'Nothing to clean.\n'
         exit 0

@@ -25,7 +25,10 @@ class PackageTests(unittest.TestCase):
             (build / "pokeplatinum.us.nds").write_bytes(rom)
             package(build, bundle)
             self.assertEqual({p.name for p in bundle.iterdir()},
-                             {"pokeplatinum.us.nds", "soullink.lua", "soullink-config.lua"})
+                             {"pokeplatinum.us.nds", "soullink.lua", "soullink-config.lua",
+                              "soullink_bridge.py"})
+            self.assertEqual((bundle / "soullink_bridge.py").read_bytes(),
+                             (REPO / "soullink_bridge.py").read_bytes())
             self.assertEqual((bundle / "pokeplatinum.us.nds").read_bytes(), rom)
             config = bundle / "soullink-config.lua"
             self.assertEqual(config.read_bytes(), (REPO / "soullink-config.example.lua").read_bytes())
