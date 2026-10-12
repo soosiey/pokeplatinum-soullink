@@ -7,6 +7,10 @@ gcc -std=c99 -Wall -Wextra -Werror -fsanitize=undefined \
     -Itests/soullink/stubs -Iinclude tests/soullink/mailbox_test.c \
     -o .build/tests/mailbox_test
 .build/tests/mailbox_test
+gcc -std=c99 -Wall -Wextra -Werror -fsanitize=undefined \
+    -Itests/soullink/stubs -Iinclude tests/soullink/save_test.c src/soul_link_save.c \
+    -o .build/tests/save_test
+.build/tests/save_test
 lua_bin=${SOULLINK_LUA:-}
 if [[ -z "$lua_bin" ]]; then
     for candidate in "$repo/.build/deps/usr/bin/lua5.3" lua5.4 lua5.3 lua; do

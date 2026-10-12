@@ -83,10 +83,16 @@ const SaveTableEntry gSaveTable[] = {
     { SAVE_TABLE_ENTRY_UNLOCKED_EASY_CHAT_WORDS, SAVE_BLOCK_ID_NORMAL, (SaveEntrySizeFunc)UnlockedEasyChatWords_SaveSize, (SaveEntryInitFunc)UnlockedEasyChatWords_Init },
     { SAVE_TABLE_ENTRY_EMAIL, SAVE_BLOCK_ID_NORMAL, (SaveEntrySizeFunc)Email_SaveSize, (SaveEntryInitFunc)Email_Init },
     { SAVE_TABLE_ENTRY_WIFI_PLAZA_QUESTIONS, SAVE_BLOCK_ID_NORMAL, (SaveEntrySizeFunc)WiFiPlazaQuestion_SaveSize, (SaveEntryInitFunc)WiFiPlazaQuestion_Init },
+    { SAVE_TABLE_ENTRY_SOUL_LINK, SAVE_BLOCK_ID_NORMAL, (SaveEntrySizeFunc)SoulLinkSave_Size, (SaveEntryInitFunc)SoulLinkSave_Init },
     { SAVE_TABLE_ENTRY_PC_BOXES, SAVE_BLOCK_ID_BOXES, (SaveEntrySizeFunc)PCBoxes_SaveSize, (SaveEntryInitFunc)PCBoxes_Init },
 };
 
 const int gSaveTableSize = NELEMS(gSaveTable);
+
+SoulLinkSave *SaveData_GetSoulLink(SaveData *saveData)
+{
+    return SaveData_SaveTable(saveData, SAVE_TABLE_ENTRY_SOUL_LINK);
+}
 
 TVBroadcast *SaveData_GetTVBroadcast(SaveData *saveData)
 {

@@ -12,6 +12,7 @@
 #include "pal_park_transfers.h"
 #include "pc_boxes.h"
 #include "savedata.h"
+#include "soul_link_save.h"
 
 typedef int (*SaveEntrySizeFunc)(void);
 typedef void (*SaveEntryInitFunc)(void *);
@@ -27,6 +28,8 @@ extern const SaveTableEntry gSaveTable[];
 extern const int gSaveTableSize;
 extern const SaveTableEntry gExtraSaveTable[];
 extern const int gExtraSaveTableSize;
+
+SoulLinkSave *SaveData_GetSoulLink(SaveData *saveData);
 
 /**
  * @brief Loads the TVBroadcast sector of the save data.
