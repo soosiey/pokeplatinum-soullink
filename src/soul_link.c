@@ -1,4 +1,5 @@
 #include "soul_link.h"
+#include "soul_link_gate.h"
 
 #include <nitro.h>
 #include <stddef.h>
@@ -44,7 +45,7 @@ static void CopyPayload(volatile SoulLinkMessage *dest, const SoulLinkMessage *s
     dest->reserved = src->reserved;
 }
 
-static BOOL Publish(SoulLinkMessage *message)
+BOOL SoulLink_Publish(SoulLinkMessage *message)
 {
     if (gSoulLinkMailbox.host.outgoingAck != sOutgoingSequence) {
         return FALSE;
@@ -66,6 +67,7 @@ void SoulLink_Init(void)
     memset((void *)&gSoulLinkMailbox, 0, sizeof(gSoulLinkMailbox));
     sIncomingSequence = 0;
     sOutgoingSequence = 0;
+    SoulLinkGate_Reset();
     gSoulLinkMailbox.rom.protocolVersion = SOUL_LINK_PROTOCOL_VERSION;
     gSoulLinkMailbox.rom.size = sizeof(gSoulLinkMailbox);
     DC_FlushRange((const void *)&gSoulLinkMailbox, sizeof(gSoulLinkMailbox));
@@ -106,7 +108,11 @@ void SoulLink_Update(void)
             BOOL consumed = FALSE;
             u32 sequence = message.sequence;
 
-            if (message.type != SOUL_LINK_EVENT_PING || message.flags != 0
+            if (message.type == SOUL_LINK_EVENT_GATE) {
+                if (SoulLinkGate_Receive(&message)) gSoulLinkMailbox.rom.accepted++;
+                else gSoulLinkMailbox.rom.rejected++;
+                consumed = TRUE;
+            } else if (message.type != SOUL_LINK_EVENT_PING || message.flags != 0
                 || message.pairId != 0 || message.species != 0
                 || message.location != 0 || message.reserved != 0) {
                 gSoulLinkMailbox.rom.rejected++;
@@ -115,7 +121,7 @@ void SoulLink_Update(void)
                 message.flags = SOUL_LINK_PING_REPLY;
                 // Hold the incoming PING until its reply can be published.
                 // An absent Lua reader must never block the game loop.
-                if (Publish(&message)) {
+                if (SoulLink_Publish(&message)) {
                     gSoulLinkMailbox.rom.accepted++;
                     consumed = TRUE;
                 }
@@ -128,11 +134,12 @@ void SoulLink_Update(void)
         }
     }
 
+    SoulLinkGate_Tick();
     if (gSoulLinkMailbox.rom.heartbeat % 300 == 1) {
         memset(&message, 0, sizeof(message));
         message.type = SOUL_LINK_EVENT_PING;
         message.personality = gSoulLinkMailbox.rom.heartbeat;
-        Publish(&message);
+        SoulLink_Publish(&message);
     }
 
     DC_FlushRange((const void *)&gSoulLinkMailbox.rom, 32);

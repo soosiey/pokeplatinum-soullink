@@ -21,7 +21,7 @@ end
 
 function M.connect(config, version, socket, log, now)
     now = now or os.time
-    local state = { peers = {}, active = false, identity = nil }
+    local state = { peers = {}, incompatible = {}, active = false, identity = nil }
     local sequence, nextKeepalive = 1, 300
     local function disable(reason)
         state.active, state.peers = false, {}
@@ -57,17 +57,25 @@ function M.connect(config, version, socket, log, now)
         if kind == "HELLO" then
             if tonumber(payload) ~= version then
                 state.peers[sender] = nil
+                state.incompatible[sender] = true
                 return false, "incompatible HELLO from " .. sender .. " (version " .. payload .. ")"
             end
             state.peers[sender] = { sequence = seq, seen = now(), keepalives = 0 }
+            state.incompatible[sender] = nil
             log("HELLO received from " .. sender .. " (version " .. payload .. ")")
             return true
         end
-        if kind ~= "KEEPALIVE" then return false, "unsupported message type " .. kind end
         local peer = state.peers[sender]
         if not peer then return false, "KEEPALIVE before compatible HELLO" end
-        if not payload:match("^%d+$") then return false, "invalid KEEPALIVE" end
         if seq <= peer.sequence then return true end
+        if kind ~= "KEEPALIVE" then
+            if not state.onmessage then return false, "unsupported message type " .. kind end
+            local valid, reason = state.onmessage(sender, kind, payload)
+            if not valid then return false, reason end
+            peer.sequence, peer.seen = seq, now()
+            return true
+        end
+        if not payload:match("^%d+$") then return false, "invalid KEEPALIVE" end
         peer.sequence, peer.seen = seq, now()
         peer.keepalives = peer.keepalives + 1
         if peer.keepalives == 1 then log("PASS: HELLO/KEEPALIVE received from " .. sender) end
@@ -92,6 +100,10 @@ function M.connect(config, version, socket, log, now)
                 log(sender .. " KEEPALIVE timed out")
             end
         end
+    end
+    function state.send(kind, payload)
+        if not state.active then return false end
+        return send(kind, payload)
     end
     if not config then return state end
     if not socket then log("Network disabled: BizHawk comm API unavailable"); return state end

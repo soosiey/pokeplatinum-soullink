@@ -32,6 +32,7 @@ local env = setmetatable({
         if path:match("mailbox.lua$") then return M end
         if path:match("bizhawk.lua$") then return { connect = function() return io end } end
         if path:match("network.lua$") then return dofile(path) end
+        if path:match("lobby.lua$") then return dofile(path) end
         if path:match("soullink%-symbols.lua$") then return {} end
         error("Unexpected file: " .. path)
     end,
@@ -59,7 +60,7 @@ local env = setmetatable({
     end },
 }, { __index = _G })
 if arg[1] then
-    local messages = { "SL1|1|relay|WELCOME|client1", "SL1|1|host|HELLO|257",
+    local messages = { "SL1|1|relay|WELCOME|client1", "SL1|1|host|HELLO|258",
         "SL1|2|host|KEEPALIVE|300" }
     env.comm = {
         socketServerGetInfo = function() return "192.0.2.1:7777" end,

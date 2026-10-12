@@ -42,7 +42,7 @@ class RelayTests(unittest.IsolatedAsyncioTestCase):
     async def connect(self, role):
         reader, writer = await asyncio.open_connection("127.0.0.1", self.port)
         self.writers.append(writer)
-        await bridge.write_frame(writer, f"SL1|1|{role}|HELLO|257".encode())
+        await bridge.write_frame(writer, f"SL1|1|{role}|HELLO|258".encode())
         return reader, writer
 
     async def receive(self, reader):
@@ -56,9 +56,9 @@ class RelayTests(unittest.IsolatedAsyncioTestCase):
             clients.append((reader, writer))
             self.assertEqual(await self.receive(reader),
                              f"SL1|1|relay|WELCOME|client{index}".encode())
-            self.assertEqual(await self.receive(reader), b"SL1|1|host|HELLO|257")
+            self.assertEqual(await self.receive(reader), b"SL1|1|host|HELLO|258")
             self.assertEqual(await self.receive(host),
-                             f"SL1|1|client{index}|HELLO|257".encode())
+                             f"SL1|1|client{index}|HELLO|258".encode())
         await bridge.write_frame(host_writer, b"SL1|2|host|KEEPALIVE|60")
         for reader, writer in clients:
             self.assertEqual(await self.receive(reader), b"SL1|2|host|KEEPALIVE|60")
@@ -71,15 +71,15 @@ class RelayTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await asyncio.wait_for(clients[0][0].read(1), 2), b"")
         replacement, _ = await self.connect("client")
         self.assertEqual(await self.receive(replacement), b"SL1|1|relay|WELCOME|client1")
-        self.assertEqual(await self.receive(replacement), b"SL1|1|host|HELLO|257")
-        self.assertEqual(await self.receive(host), b"SL1|1|client1|HELLO|257")
+        self.assertEqual(await self.receive(replacement), b"SL1|1|host|HELLO|258")
+        self.assertEqual(await self.receive(host), b"SL1|1|client1|HELLO|258")
 
     async def test_client_before_host_and_fragmented_coalesced_frames(self):
         client, writer = await self.connect("client")
         self.assertEqual(await self.receive(client), b"SL1|1|relay|WELCOME|client1")
         host, _ = await self.connect("host")
-        self.assertEqual(await self.receive(host), b"SL1|1|client1|HELLO|257")
-        self.assertEqual(await self.receive(client), b"SL1|1|host|HELLO|257")
+        self.assertEqual(await self.receive(host), b"SL1|1|client1|HELLO|258")
+        self.assertEqual(await self.receive(client), b"SL1|1|host|HELLO|258")
         payload = b"SL1|2|client|KEEPALIVE|60"
         wire = framed(payload)
         for fragment in (wire[:1], wire[1:4], wire[4:]):

@@ -1,6 +1,6 @@
 local adapter = dofile("tools/soullink/bizhawk.lua")
 local log = function() end
-local symbols = { mailbox = 0x02101020, size = 128, version = 0x0101,
+local symbols = { mailbox = 0x02101020, size = 128, version = 0x0102,
     rom_sha1 = string.rep("a", 40) }
 local domains = { ["Main RAM"] = 0x400000, ["ARM9 System Bus"] = 0,
     ["ARM7 System Bus"] = 0 }

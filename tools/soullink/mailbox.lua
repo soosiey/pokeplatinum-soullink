@@ -1,5 +1,5 @@
 -- Platform-independent DS diagnostic ABI. All offsets are mailbox-relative.
-local M = { magic = 0x4B4E4C53, version = 0x0101, size = 128 }
+local M = { magic = 0x4B4E4C53, version = 0x0102, size = 128 }
 M.outgoing, M.incoming, M.host_ack = 32, 64, 96
 
 function M.next_sequence(sequence)
@@ -30,25 +30,30 @@ function M.read_message(io, offset)
     return m
 end
 
-function M.send_ping(io, token)
+function M.send(io, message)
     assert(M.valid_header(io), "Mailbox ABI mismatch; no writes made")
     local offset = M.incoming
     local current = io.read32(offset)
     if current ~= io.read32(12) then return nil end
-    local m = { sequence = M.next_sequence(current), personality = token,
-        otId = 0, type = 1, pairId = 0, species = 0, location = 0,
-        flags = 0, reserved = 0 }
+    local m = { sequence = M.next_sequence(current), personality = message.personality or 0,
+        otId = message.otId or 0, type = message.type, pairId = message.pairId or 0,
+        species = message.species or 0, location = message.location or 0,
+        flags = message.flags or 0, reserved = message.reserved or 0 }
     io.write32(offset + 4, m.personality)
     io.write32(offset + 8, m.otId)
     io.write16(offset + 12, m.type)
-    io.write16(offset + 14, 0)
-    io.write16(offset + 16, 0)
-    io.write16(offset + 18, 0)
-    io.write16(offset + 20, 0)
-    io.write16(offset + 22, 0)
+    io.write16(offset + 14, m.pairId)
+    io.write16(offset + 16, m.species)
+    io.write16(offset + 18, m.location)
+    io.write16(offset + 20, m.flags)
+    io.write16(offset + 22, m.reserved)
     io.write32(offset + 24, M.checksum(m))
     io.write32(offset, m.sequence) -- Publish last.
     return m.sequence
+end
+
+function M.send_ping(io, token)
+    return M.send(io, { type = 1, personality = token })
 end
 
 function M.receive(io)
@@ -59,9 +64,10 @@ function M.receive(io)
     assert(current == M.next_sequence(ack), "ROM sequence discontinuity; reload Lua after reset")
     local m = M.read_message(io, M.outgoing)
     if not m then return nil end -- Payload has not been committed completely yet.
-    assert(m.type == 1 and (m.flags == 0 or m.flags == 1)
+    assert((m.type == 1 and (m.flags == 0 or m.flags == 1)
         and m.pairId == 0 and m.species == 0 and m.location == 0
-        and m.reserved == 0, "Unsupported ROM event; no acknowledgement sent")
+        and m.reserved == 0) or (m.type == 2 and m.reserved ~= 0),
+        "Unsupported ROM event; no acknowledgement sent")
     io.write32(M.host_ack, m.sequence)
     return m
 end

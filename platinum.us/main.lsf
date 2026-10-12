@@ -18,6 +18,8 @@ Static main
 	Object main.nef.p/src_main.c.o
 	Object main.nef.p/src_soul_link.c.o
 	Object main.nef.p/src_soul_link_save.c.o
+	Object main.nef.p/src_soul_link_gate.c.o
+	Object main.nef.p/src_soul_link_gate_ui.c.o
 	Object main.nef.p/src_debug.c.o
 	Object main.nef.p/src_list_menu.c.o
 	Object main.nef.p/src_game_version.c.o

@@ -54,6 +54,8 @@ def run_on_windows(args: argparse.Namespace) -> int:
         args.bind,
         "--port",
         str(args.port),
+        "--instances",
+        str(args.instances),
     ]
     if args.emuhawk:
         command.extend(("--emuhawk", windows_path(args.emuhawk)))
@@ -213,17 +215,18 @@ class SoulLinkRelay:
             await self.drop(peer)
 
 
-async def run(bind: str, port: int, emuhawk: str | None) -> None:
+async def run(bind: str, port: int, emuhawk: str | None, instances: int = 1) -> None:
     relay = SoulLinkRelay()
     server = await asyncio.start_server(relay.handle, bind, port)
     addresses = ", ".join(str(sock.getsockname()) for sock in server.sockets or ())
     print(f"[Bridge] listening on {addresses}")
-    if emuhawk:
-        process = subprocess.Popen(
-            [emuhawk, "--socket-ip=127.0.0.1", f"--socket-port={port}"]
-        )
-        print(f"[Bridge] launched native EmuHawk (pid={process.pid})")
     async with server:
+        if emuhawk:
+            for index in range(instances):
+                process = subprocess.Popen(
+                    [emuhawk, "--socket-ip=127.0.0.1", f"--socket-port={port}"]
+                )
+                print(f"[Bridge] launched native EmuHawk {index + 1}/{instances} (pid={process.pid})")
         await server.serve_forever()
 
 
@@ -232,13 +235,17 @@ def main() -> None:
     parser.add_argument("--bind", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=7777)
     parser.add_argument("--emuhawk", help="path to EmuHawk.exe to launch after listening")
+    parser.add_argument("--instances", type=int, choices=range(1, 5), default=1,
+                        help="number of EmuHawk instances to launch (default: 1; requires --emuhawk)")
     args = parser.parse_args()
+    if args.instances != 1 and not args.emuhawk:
+        parser.error("--instances greater than 1 requires --emuhawk")
     if is_wsl():
         raise SystemExit(run_on_windows(args))
     if args.emuhawk and sys.platform != "win32":
         parser.error("--emuhawk requires Windows or WSL")
     try:
-        asyncio.run(run(args.bind, args.port, args.emuhawk))
+        asyncio.run(run(args.bind, args.port, args.emuhawk, args.instances))
     except KeyboardInterrupt:
         print("\n[Bridge] stopped")
 

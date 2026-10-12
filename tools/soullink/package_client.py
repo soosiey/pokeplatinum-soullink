@@ -20,6 +20,7 @@ def package(build_dir, output):
         "tools/soullink/mailbox.lua": (REPO / "tools/soullink/mailbox.lua").read_text(),
         "tools/soullink/bizhawk.lua": (REPO / "tools/soullink/bizhawk.lua").read_text(),
         "tools/soullink/network.lua": (REPO / "tools/soullink/network.lua").read_text(),
+        "tools/soullink/lobby.lua": (REPO / "tools/soullink/lobby.lua").read_text(),
         ".build/rom/soullink-symbols.lua": symbols,
     }.items():
         loader = f'dofile(root .. "{name}")'
@@ -44,7 +45,7 @@ def package(build_dir, output):
     config = output / "soullink-config.lua"
     if not config.exists():
         shutil.copyfile(REPO / "soullink-config.example.lua", config)
-    print(f"Portable bundle: {output} (Stage 3 PING and relay HELLO/KEEPALIVE)")
+    print(f"Portable bundle: {output} (Stage 4 lobby and startup gates)")
 
 
 def main():

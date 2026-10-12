@@ -11,6 +11,8 @@ pokeplatinum_c = files(
     'main.c',
     'soul_link.c',
     'soul_link_save.c',
+    'soul_link_gate.c',
+    'soul_link_gate_ui.c',
     'map_header.c',
     'move_table.c',
     'narc.c',

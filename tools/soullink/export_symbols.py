@@ -62,7 +62,7 @@ def export(build_dir):
         "return {\n"
         f"    mailbox = 0x{address:08X},\n"
         "    size = 128,\n"
-        "    version = 0x0101,\n"
+        "    version = 0x0102,\n"
         f'    rom_sha1 = "{digest.hexdigest()}",\n'
         "}\n", encoding="ascii")
     temporary.replace(output)

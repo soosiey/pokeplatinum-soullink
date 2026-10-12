@@ -4,14 +4,20 @@
 #include <nitro/types.h>
 
 #define SOUL_LINK_MAILBOX_MAGIC 0x4B4E4C53
-// DS diagnostic ABI 1, deliberately distinct from Emerald protocol 18.
-#define SOUL_LINK_PROTOCOL_VERSION 0x0101
+// DS lobby ABI 2, deliberately distinct from Emerald protocol 18.
+#define SOUL_LINK_PROTOCOL_VERSION 0x0102
+#define SOUL_LINK_EVENT_INTENT 2
+#define SOUL_LINK_EVENT_GATE 3
+#define SOUL_LINK_GATE_WAITING 1
+#define SOUL_LINK_GATE_READY 2
+#define SOUL_LINK_GATE_APPROVED 3
+#define SOUL_LINK_GATE_REJECTED 4
 #define SOUL_LINK_EVENT_PING 1
 #define SOUL_LINK_PING_REPLY 1
 
 typedef struct SoulLinkMessage {
     u32 sequence;
-    u32 personality; // Diagnostic PING token until gameplay events are enabled.
+    u32 personality; // PING token or the low half of a run ID.
     u32 otId;
     u16 type;
     u16 pairId;
@@ -53,5 +59,6 @@ extern volatile SoulLinkMailbox gSoulLinkMailbox;
 void SoulLink_Init(void);
 void SoulLink_Update(void);
 u32 SoulLink_MessageChecksum(const SoulLinkMessage *message);
+BOOL SoulLink_Publish(SoulLinkMessage *message);
 
 #endif

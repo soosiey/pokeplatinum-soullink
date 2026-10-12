@@ -23,7 +23,7 @@ function M.connect(symbols, log)
         assert(hash == symbols.rom_sha1, "ROM/symbol mismatch; rebuild and load the matching ROM")
     end
     validate_game()
-    assert(symbols.version == 0x0101 and symbols.size == 128,
+    assert(symbols.version == 0x0102 and symbols.size == 128,
         "Unsupported symbol manifest ABI")
     local address = symbols.mailbox
     assert(type(address) == "number" and address % 32 == 0

@@ -4,6 +4,7 @@
 #include "constants/heap.h"
 
 #include "appearance.h"
+#include "applications/title_screen.h"
 #include "berry_patches.h"
 #include "game_options.h"
 #include "heap.h"
@@ -17,6 +18,9 @@
 #include "record_mixed_rng.h"
 #include "save_player.h"
 #include "savedata.h"
+#include "savedata/save_table.h"
+#include "soul_link_gate.h"
+#include "soul_link_gate_ui.h"
 #include "savedata_misc.h"
 #include "system_data.h"
 #include "system_flags.h"
@@ -42,6 +46,19 @@ static void TryLoadingSave(int unused, SaveData *saveData);
 static void StartNewSave(int unused, SaveData *saveData);
 
 extern const ApplicationManagerTemplate gRowanIntroAppTemplate;
+FS_EXTERN_OVERLAY(game_opening);
+
+static BOOL CancelSoulLinkGate(SaveData *saveData)
+{
+    if (!SoulLinkGateUI_Cancelled()) return FALSE;
+    SoulLinkGate_Cancel();
+    SoulLinkGateUI_Close();
+    // New Game cleared the in-memory save. Restore it without writing to SRAM.
+    // BackupExists only reports save hardware, including an empty cartridge.
+    if (SaveData_DataExists(saveData)) TryLoadingSave(HEAP_ID_GAME_START, saveData);
+    else SaveData_Clear(saveData);
+    return TRUE;
+}
 
 const ApplicationManagerTemplate gGameStartRowanIntroAppTemplate = {
     .init = GameStartRowanIntro_Init,
@@ -74,14 +91,25 @@ static BOOL GameStartRowanIntro_Init(ApplicationManager *appMan, int *state)
 static BOOL GameStartRowanIntro_Main(ApplicationManager *appMan, int *state)
 {
     SaveData *saveData = ((ApplicationArgs *)ApplicationManager_Args(appMan))->saveData;
-    StartNewSave(HEAP_ID_GAME_START, saveData);
+    if (*state == 0) {
+        StartNewSave(HEAP_ID_GAME_START, saveData);
+        SoulLinkGate_Begin(SaveData_GetSoulLink(saveData), TRUE, MTRNG_Next(), MTRNG_Next());
+        SoulLinkGateUI_Open();
+        *state = 1;
+    }
+    SoulLinkGateUI_Update();
+    if (CancelSoulLinkGate(saveData)) return TRUE;
+    if (!SoulLinkGate_Apply()) return FALSE;
+    SoulLinkGateUI_Close();
+    SoulLinkGate_End();
     return TRUE;
 }
 
 static int GameStartRowanIntro_Exit(ApplicationManager *appMan, int *state)
 {
     Heap_Destroy(HEAP_ID_GAME_START);
-    EnqueueApplication(FS_OVERLAY_ID_NONE, &gRowanIntroAppTemplate);
+    if (SoulLinkGateUI_Cancelled()) EnqueueApplication(FS_OVERLAY_ID(game_opening), &gTitleScreenAppTemplate);
+    else EnqueueApplication(FS_OVERLAY_ID_NONE, &gRowanIntroAppTemplate);
     return TRUE;
 }
 
@@ -119,7 +147,17 @@ static int GameStartLoadSave_Main(ApplicationManager *appMan, int *state)
     SaveData *saveData = ((ApplicationArgs *)ApplicationManager_Args(appMan))->saveData;
     SystemData *systemData = SaveData_GetSystemData(saveData);
 
-    TryLoadingSave(HEAP_ID_GAME_START, saveData);
+    if (*state == 0) {
+        TryLoadingSave(HEAP_ID_GAME_START, saveData);
+        SoulLinkGate_Begin(SaveData_GetSoulLink(saveData), FALSE, 0, 0);
+        SoulLinkGateUI_Open();
+        *state = 1;
+    }
+    SoulLinkGateUI_Update();
+    if (CancelSoulLinkGate(saveData)) return TRUE;
+    if (!SoulLinkGate_Apply()) return FALSE;
+    SoulLinkGateUI_Close();
+    SoulLinkGate_End();
     Options_SetSystemButtonMode(saveData, OPTIONS_BUTTON_MODE_NORMAL);
 
     if (!SystemData_MatchesCurrentSystem(systemData) || !SystemData_MatchesCurrentRTCOffset(systemData)) {
@@ -135,7 +173,8 @@ static int GameStartLoadSave_Main(ApplicationManager *appMan, int *state)
 static int GameStartLoadSave_Exit(ApplicationManager *appMan, int *state)
 {
     Heap_Destroy(HEAP_ID_GAME_START);
-    EnqueueApplication(FS_OVERLAY_ID_NONE, &gFieldSystemContinueTemplate);
+    if (SoulLinkGateUI_Cancelled()) EnqueueApplication(FS_OVERLAY_ID(game_opening), &gTitleScreenAppTemplate);
+    else EnqueueApplication(FS_OVERLAY_ID_NONE, &gFieldSystemContinueTemplate);
     return TRUE;
 }
 

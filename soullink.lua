@@ -1,9 +1,10 @@
--- Stage 3: local PING/ack plus relay HELLO/KEEPALIVE. No gameplay synchronization yet.
+-- Stage 4: mailbox diagnostics, host-authoritative lobby, and startup gates.
 local source = debug.getinfo(1, "S").source:gsub("^@", "")
 local root = source:match("^(.*[\\/])") or "./"
 local mailbox = dofile(root .. "tools/soullink/mailbox.lua")
 local adapter = dofile(root .. "tools/soullink/bizhawk.lua")
 local network = dofile(root .. "tools/soullink/network.lua")
+local lobby = dofile(root .. "tools/soullink/lobby.lua")
 local symbols = dofile(root .. ".build/rom/soullink-symbols.lua")
 local function log(message) console.log("[Soul Link] " .. message) end
 local io = adapter.connect(symbols, log)
@@ -24,6 +25,7 @@ log("Mailbox initialized. Testing PING in both directions.")
 local config, configError = network.load_config(root .. "soullink-config.lua")
 if configError then log(configError) end
 local connection = network.connect(config, mailbox.version, comm, log)
+local room = lobby.new(config, connection, log)
 
 while true do
     io.validate_game()
@@ -38,7 +40,9 @@ while true do
 
     local message = mailbox.receive(io)
     if message then
-        if message.flags == 0 then
+        if message.type == 2 then
+            room.offer(message)
+        elseif message.flags == 0 then
             romPings = romPings + 1
             log("ROM PING " .. message.sequence .. " acknowledged")
         elseif pending and message.personality == pending.token then
@@ -53,7 +57,9 @@ while true do
         log("Lua PING " .. pending.sequence .. " acknowledged and echoed")
         pending = nil
     end
-    if not pending and frames % 180 == 0 then
+    if room.pending and not pending then
+        if mailbox.send(io, room.pending) then room.pending = nil end
+    elseif not pending and frames % 180 == 0 then
         local token = (heartbeat ~ 0x50494E47) & 0xFFFFFFFF
         local sequence = mailbox.send_ping(io, token)
         if sequence then pending = { sequence = sequence, token = token, frame = frames } end
@@ -65,5 +71,6 @@ while true do
     end
     frames = frames + 1
     connection.update(frames)
+    room.update()
     emu.frameadvance()
 end
