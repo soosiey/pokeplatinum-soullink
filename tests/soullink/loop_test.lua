@@ -1,6 +1,7 @@
 -- Exercise the actual frame loop, including a reply visible one frame before ack.
 local M = dofile(arg[4] or "tools/soullink/mailbox.lua")
 local ram, frame, dueAck, replySequence, loggedPass = {}, 0, nil, 0, false
+local networkPass, networkSends = false, 0
 local function put(o, v, n)
     for i = 0, n - 1 do ram[o + i] = (v >> (8 * i)) & 255 end
 end
@@ -35,7 +36,8 @@ local env = setmetatable({
         error("Unexpected file: " .. path)
     end,
     console = { log = function(text)
-        if text:find("PASS:", 1, true) then loggedPass = true end
+        if text:find("PASS: 3 Lua", 1, true) then loggedPass = true end
+        if text:find("PASS: HELLO/KEEPALIVE", 1, true) then networkPass = true end
     end },
     emu = { frameadvance = function()
         frame = frame + 1
@@ -57,6 +59,18 @@ local env = setmetatable({
     end },
 }, { __index = _G })
 if arg[1] then
+    local messages = { "SL1|1|relay|WELCOME|client1", "SL1|1|host|HELLO|257",
+        "SL1|2|host|KEEPALIVE|300" }
+    env.comm = {
+        socketServerGetInfo = function() return "192.0.2.1:7777" end,
+        socketServerSetTimeout = function(ms) assert(ms == 1) end,
+        socketServerSend = function(message)
+            assert(message:match("^SL1|%d+|client|"))
+            networkSends = networkSends + 1
+            return #message
+        end,
+        socketServerResponse = function() return table.remove(messages, 1) or "" end,
+    }
     local base = tonumber(arg[3]) - 0x02000000
     env.client = { getversion = function() return "2.11.1" end }
     env.gameinfo = { getromhash = function() return arg[2] end }
@@ -75,4 +89,7 @@ end
 local ok, err = pcall(assert(loadfile(arg[1] or "soullink.lua", "t", env)))
 assert(not ok and tostring(err):find("TEST_END", 1, true), tostring(err))
 assert(loggedPass, "Frame loop never completed its acceptance check")
+if arg[1] then
+    assert(networkPass and networkSends >= 3, "Portable network/config integration did not run")
+end
 print("PASS: Lua frame loop, initialization wait, ROM PING and delayed incoming acknowledgement")
